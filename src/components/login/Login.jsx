@@ -30,7 +30,6 @@ const Login = () => {
       <div className="item">
         <h2>Welcome back,</h2>
         <form onSubmit={handleLogin}>
-          {/* <form> */}
           <input type="text" placeholder="Email" name="email" />
           <input type="password" placeholder="password" name="password" />
           <button className="signup">Sign In</button>
