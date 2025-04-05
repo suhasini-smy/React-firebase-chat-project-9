@@ -48,8 +48,9 @@ const Detail = () => {
               <img src="./download.png" alt="download" />
             </div>
           </div>
+          <button>Block User</button>
+          <button className="logout">Logout</button>
         </div>
-        <button>Block User</button>
       </div>
     </div>
   );
