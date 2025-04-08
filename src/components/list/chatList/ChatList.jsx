@@ -3,6 +3,8 @@ import "./chatList.css";
 import "../chatList/chatList.css";
 import "../../list/chatList/chatList.css";
 
+import AddUser from "../../list/chatList/addUser/AddUser"
+
 const ChatList = () => {
   const [addMore, setAddMore] = useState(false);
   return (
@@ -40,6 +42,7 @@ const ChatList = () => {
           <p></p>
         </div>
       </div>
+      {addMore && <AddUser />}
     </div>
   );
 };
