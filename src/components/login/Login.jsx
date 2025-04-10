@@ -2,7 +2,11 @@ import React, { useState } from "react";
 import "./login.css";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
+import {
+  getAuth,
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+} from "firebase/auth";
 import { auth, db } from "../../lib/firebase";
 import { doc, setDoc } from "firebase/firestore";
 
@@ -14,6 +18,9 @@ const Login = () => {
     url: "",
   });
 
+  const [loadingSignup, setLoadingSignup] = useState(false);
+  const [loadingSignin, setLoadingSignin] = useState(false);
+
   const handleAvatar = (e) => {
     if (e.target.files[0]) {
       setAvatar({
@@ -23,15 +30,25 @@ const Login = () => {
     }
   };
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
-    toast.warn("Please fill form data", {
-      position: "bottom-right",
-    });
+    setLoadingSignin(true);
+
+    const formData = new FormData(e.target);
+    const { email, password } = Object.fromEntries(formData);
+
+    try {
+      const v = await signInWithEmailAndPassword(email, password);
+    } catch (err) {
+      console.log(err.message);
+    } finally {
+      setLoadingSignin(false);
+    }
   };
 
   const handleRegister = async (e) => {
     e.preventDefault();
+    setLoadingSignup(true);
 
     const formData = new FormData(e.target);
     const { username, email, password } = Object.fromEntries(formData);
@@ -40,7 +57,6 @@ const Login = () => {
       const res = await createUserWithEmailAndPassword(auth, email, password);
 
       if (!res) throw new Error(`HTTP error: ${res}`);
-      // const data = await res.json();
 
       const imgUrl = await upload(avatar.file);
       await setDoc(doc(db, "users", res.user.uid), {
@@ -55,10 +71,10 @@ const Login = () => {
       });
       toast.success("Account Created!you can login now!");
     } catch (err) {
-      console.log("here----2");
       setError(err.message);
-
       toast.error(err.message);
+    } finally {
+      setLoadingSignup(false);
     }
   };
 
@@ -69,8 +85,17 @@ const Login = () => {
         <form onSubmit={handleLogin}>
           <input type="text" placeholder="Email" name="email" />
           <input type="password" placeholder="password" name="password" />
-          <button className="signup">Sign In</button>
-          <ToastContainer />
+          <button className="signup" disabled={loadingSignin}>
+            {loadingSignin ? "Loading" : "Sign In"}
+          </button>
+          <ToastContainer
+            position="bottom-right"
+            autoClose={3000}
+            hideProgressBar={false}
+            newestOnTop={false}
+            closeOnClick
+            pauseOnHover
+          />
         </form>
       </div>
       {/* {error && <p style={{ color: "red" }}>{error}</p>} */}
@@ -97,7 +122,9 @@ const Login = () => {
           <input type="text" placeholder="Username" name="username" />
           <input type="text" placeholder="Email" name="email" />
           <input type="password" placeholder="password" name="password" />
-          <button className="signup">Sign Up</button>
+          <button className="signup" disabled={loadingSignup}>
+            {loadingSignup ? "Loading" : "Sign Up"}
+          </button>
         </form>
       </div>
     </div>
